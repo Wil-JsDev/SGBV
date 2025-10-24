@@ -1,0 +1,6 @@
+@SGBV.Infrastructure.API_HostAddress = http://localhost:5173
+
+GET {{SGBV.Infrastructure.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
