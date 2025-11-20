@@ -4,8 +4,6 @@ namespace SGBV.Domain.Models;
 
 public sealed class Loan : BaseEntity
 {
-    public Guid LoanId { get; set; }
-
     public required Guid UserId { get; set; }
 
     public required Guid ResourceId { get; set; }
