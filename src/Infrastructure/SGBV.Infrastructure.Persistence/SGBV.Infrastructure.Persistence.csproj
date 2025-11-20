@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Application\SGBV.Application\SGBV.Application.csproj" />
       <ProjectReference Include="..\..\Domain\SGBV.Domain\SGBV.Domain.csproj" />
     </ItemGroup>
 

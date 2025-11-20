@@ -16,6 +16,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SGBV.Infrastructure.Persistence\SGBV.Infrastructure.Persistence.csproj" />
+      <ProjectReference Include="..\SGBV.Infrastructure.Shared\SGBV.Infrastructure.Shared.csproj" />
     </ItemGroup>
 
 </Project>
