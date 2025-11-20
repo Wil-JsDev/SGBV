@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.3.0" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+      <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.10.0" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.10.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Application\SGBV.Application\SGBV.Application.csproj" />
+      <ProjectReference Include="..\..\Domain\SGBV.Domain\SGBV.Domain.csproj" />
+    </ItemGroup>
+
+</Project>

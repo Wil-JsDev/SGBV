@@ -4,8 +4,6 @@ namespace SGBV.Domain.Models;
 
 public sealed class Resource : BaseEntity
 {
-    public Guid ResourceId { get; set; }
-
     public string Title { get; set; } = string.Empty;
 
     public string Author { get; set; } = string.Empty;
@@ -13,6 +11,7 @@ public sealed class Resource : BaseEntity
     public string? Genre { get; set; }
 
     public short? PublicationYear { get; set; }
+    public string? CoverUrl { get; set; }
 
     public string? Description { get; set; }
 

@@ -24,7 +24,7 @@ namespace SGBV.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SGBV.Domain.Models.Loan", b =>
                 {
-                    b.Property<Guid>("LoanId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -65,7 +65,7 @@ namespace SGBV.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("LoanId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ResourceId");
 
@@ -74,9 +74,62 @@ namespace SGBV.Infrastructure.Persistence.Migrations
                     b.ToTable("Loan", (string)null);
                 });
 
+            modelBuilder.Entity("SGBV.Domain.Models.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTime?>("DeletedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("Expiration")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("Revoked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("UpdatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Used")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshToken", (string)null);
+                });
+
             modelBuilder.Entity("SGBV.Domain.Models.Resource", b =>
                 {
-                    b.Property<Guid>("ResourceId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -84,6 +137,10 @@ namespace SGBV.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
+
+                    b.Property<string>("CoverUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<DateTime>("CreatedOnUtc")
                         .ValueGeneratedOnAdd()
@@ -128,14 +185,14 @@ namespace SGBV.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("ResourceId");
+                    b.HasKey("Id");
 
                     b.ToTable("Resource", (string)null);
                 });
 
             modelBuilder.Entity("SGBV.Domain.Models.Role", b =>
                 {
-                    b.Property<Guid>("RolId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -160,17 +217,33 @@ namespace SGBV.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("RolId");
+                    b.HasKey("Id");
 
                     b.HasIndex("NameRol")
                         .IsUnique();
 
                     b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("d9f787e8-77a7-4f7a-aae7-a9067cc8a8be"),
+                            CreatedOnUtc = new DateTime(2025, 11, 20, 16, 10, 59, 125, DateTimeKind.Utc).AddTicks(2635),
+                            IsDeleted = false,
+                            NameRol = "Admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("c751a5c4-645e-437e-b2ea-25cf602378fb"),
+                            CreatedOnUtc = new DateTime(2025, 11, 20, 16, 10, 59, 125, DateTimeKind.Utc).AddTicks(2641),
+                            IsDeleted = false,
+                            NameRol = "User"
+                        });
                 });
 
             modelBuilder.Entity("SGBV.Domain.Models.User", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -207,6 +280,10 @@ namespace SGBV.Infrastructure.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("ProfileUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<DateTime>("RegistrationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -218,7 +295,7 @@ namespace SGBV.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -247,6 +324,17 @@ namespace SGBV.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SGBV.Domain.Models.RefreshToken", b =>
+                {
+                    b.HasOne("SGBV.Domain.Models.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SGBV.Domain.Models.User", b =>
                 {
                     b.HasOne("SGBV.Domain.Models.Role", "Rol")
@@ -271,6 +359,8 @@ namespace SGBV.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("SGBV.Domain.Models.User", b =>
                 {
                     b.Navigation("Loans");
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }
