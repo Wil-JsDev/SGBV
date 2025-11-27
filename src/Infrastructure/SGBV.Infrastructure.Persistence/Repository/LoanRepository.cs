@@ -33,6 +33,7 @@ public class LoanRepository(SgbvContext context)
     {
         var query = context.Set<Loan>()
             .AsNoTracking()
+            .Include(l => l.Resource)
             .Where(l => l.UserId == userId);
 
         var total = await query.CountAsync();
