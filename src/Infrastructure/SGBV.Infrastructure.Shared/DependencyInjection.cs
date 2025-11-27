@@ -19,6 +19,7 @@ public static class DependencyInjection
         #region Settings
         
         services.Configure<JWTSettings>(configuration.GetSection("JWTSettings"));
+        services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
             
         #endregion
         
@@ -89,7 +90,8 @@ public static class DependencyInjection
         #region Services
         
         services.AddScoped<IAuthService, AuthService>();
-            
+        services.AddScoped<ICloudinaryService, CloudinaryService>();    
+        
         #endregion
     }
 }
