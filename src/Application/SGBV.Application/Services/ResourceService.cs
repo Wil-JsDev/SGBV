@@ -109,12 +109,21 @@ public class ResourceService(
             logger.LogWarning("Attempted to update resource with Id {ResourceId}, but it was not found.", resourceId);
             return ResultT<ResourceDto>.Failure(Error.NotFound("404", "We couldn't find this resource."));
         }
+        
+        string cover = "";
+        if (updatedDto.CoverUrl is not null)
+        {
+            await using var stream = updatedDto.CoverUrl.OpenReadStream();
+            cover = await cloudinaryService.UploadImageCloudinaryAsync(stream, updatedDto.CoverUrl.FileName,
+                cancellationToken);
+        }
 
         resource.Title = updatedDto.Title;
         resource.Author = updatedDto.Author;
         resource.Genre = updatedDto.Genre;
         resource.PublicationYear = updatedDto.PublicationYear;
         resource.Description = updatedDto.Description;
+        resource.CoverUrl = cover;
 
         await genericRepository.UpdateAsync(resource, cancellationToken);
 

@@ -20,7 +20,7 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
         await resourceService.CreateResourceAsync(resourceDto, cancellationToken);
 
     [HttpPut("{id}")]
-    public async Task<ResultT<ResourceDto>> Update([FromRoute] Guid id, [FromBody] ResourceRequestDto resourceDto,
+    public async Task<ResultT<ResourceDto>> Update([FromRoute] Guid id, [FromForm] ResourceRequestDto resourceDto,
         CancellationToken cancellationToken) =>
         await resourceService.UpdateResourceAsync(id, resourceDto, cancellationToken);
 
