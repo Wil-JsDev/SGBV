@@ -6,7 +6,8 @@ using SGBV.Application.Utilities;
 
 namespace SGBV.Application.Services;
 
-public class UserService(ILogger<UserService> logger, IUserRepository userRepository) : IUserService
+public class UserService(ILogger<UserService> logger, IUserRepository userRepository, ILoanRepository loanRepository, IResourceRepository resourceRepository)
+    : IUserService
 {
     public async Task<ResultT<UserDto>> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
@@ -113,5 +114,37 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             newName);
         return ResultT<UserDto>.Success(userDto);
     }
+
+    public async Task<UserDashboardCountsDto> GetUserDashboardCountsAsync(Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var totalLoans = await loanRepository
+            .GetUserLoanCountAsync(userId, cancellationToken);
+
+        var activeLoans = await loanRepository
+            .GetUserBorrowedResourceCountAsync(userId, cancellationToken);
+
+        var overdueLoans = await loanRepository
+            .GetUserOverdueLoanCountAsync(userId, cancellationToken);
+
+        return new UserDashboardCountsDto(totalLoans, activeLoans, overdueLoans);
+    }
     
+    public async Task<AdminDashboardCountsDto> GetAdminDashboardCountsAsync(
+        CancellationToken cancellationToken)
+    {
+        var activeLoans = await loanRepository
+            .GetActiveLoanCountAsync(cancellationToken);
+
+        var overdueLoans = await loanRepository
+            .GetOverdueLoanCountAsync(cancellationToken);
+
+        var availableResources = await resourceRepository
+            .GetAvailableResourceCountAsync(cancellationToken);
+
+        var totalUsers = 
+            await userRepository.GetTotalUserCountAsync(cancellationToken);
+
+        return new AdminDashboardCountsDto(activeLoans, overdueLoans, availableResources, totalUsers);
+    }
 }
