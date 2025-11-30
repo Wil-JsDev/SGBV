@@ -17,4 +17,6 @@ public interface ILoanService
         CancellationToken cancellationToken = default);
 
     Task<ResultT<LoanResponseDto>> GetByIdAsync(Guid loanId, CancellationToken cancellationToken = default);
+
+    Task<ResultT<LoanResponseDto>> ExtendLoanAsync(LoanExtendDto dto, CancellationToken cancellationToken = default);
 }

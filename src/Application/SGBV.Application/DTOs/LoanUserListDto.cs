@@ -2,6 +2,7 @@ namespace SGBV.Application.DTOs;
 
 public sealed record LoanUserListDto(
     Guid Id,
+    string UserName,
     ResourceLoanDto Resource,
     DateTime LoanDate,
     DateTime DueDate,
@@ -10,5 +11,6 @@ public sealed record LoanUserListDto(
 );
 public sealed record ResourceLoanDto(
     Guid ResourceId,
-    string ResourceName
+    string ResourceName,
+    string CoverUrl
 );

@@ -161,4 +161,44 @@ public class LoanRepository(SgbvContext context)
                 l.ReturnDate == null &&
                 l.DueDate < now);
     }
+    
+    public async Task<int> GetUserLoanCountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x => x.UserId == userId)
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> GetUserBorrowedResourceCountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x => x.UserId == userId && x.ReturnDate == null)
+            .CountAsync(cancellationToken);
+    }
+    
+    public async Task<int> GetActiveLoanCountAsync(CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x => x.ReturnDate == null)
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> GetOverdueLoanCountAsync(CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x =>
+                x.ReturnDate == null &&
+                x.DueDate < DateTime.UtcNow)
+            .CountAsync(cancellationToken);
+    }
+    
+    public async Task<int> GetUserOverdueLoanCountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x =>
+                x.UserId == userId &&
+                x.ReturnDate == null &&
+                x.DueDate < DateTime.UtcNow)
+            .CountAsync(cancellationToken);
+    }
 }

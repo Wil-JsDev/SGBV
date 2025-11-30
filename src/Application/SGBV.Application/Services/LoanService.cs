@@ -115,7 +115,8 @@ public class LoanService(
         var itemsDto = items.Items.Select(loan => new LoanUserListDto
         (
             Id: loan.Id,
-            Resource: new ResourceLoanDto(loan.ResourceId, loan.Resource.Title),
+            UserName: user.Name,
+            Resource: new ResourceLoanDto(loan.ResourceId, loan.Resource.Title, loan.Resource.CoverUrl),
             LoanDate: loan.LoanDate,
             DueDate: loan.DueDate,
             ReturnDate: loan.ReturnDate,
@@ -155,4 +156,49 @@ public class LoanService(
 
         return ResultT<LoanResponseDto>.Success(response);
     }
+    
+    public async Task<ResultT<LoanResponseDto>> ExtendLoanAsync(
+        LoanExtendDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var loan = await loanRepository.GetByIdAsync(dto.LoanId, cancellationToken);
+        if (loan is null)
+        {
+            return ResultT<LoanResponseDto>.Failure(
+                Error.NotFound("404", "Loan not found.")
+            );
+        }
+
+        if (loan.ReturnDate is not null)
+        {
+            return ResultT<LoanResponseDto>.Failure(
+                Error.Failure("400", "This loan has already been returned and cannot be extended.")
+            );
+        }
+
+        if (dto.NewDueDate <= loan.DueDate)
+        {
+            return ResultT<LoanResponseDto>.Failure(
+                Error.Failure("400", "The new due date must be greater than the current due date.")
+            );
+        }
+
+        loan.DueDate = dto.NewDueDate;
+        loan.UpdatedOnUtc = DateTime.UtcNow;
+
+        await loanRepository.UpdateAsync(loan, cancellationToken);
+
+        var response = new LoanResponseDto(
+            Id: loan.Id,
+            UserId: loan.UserId,
+            ResourceId: loan.ResourceId,
+            LoanDate: loan.LoanDate,
+            DueDate: loan.DueDate,
+            ReturnDate: loan.ReturnDate,
+            Status: loan.Status
+        );
+
+        return ResultT<LoanResponseDto>.Success(response);
+    }
+
 }
