@@ -6,9 +6,9 @@ using SGBV.Domain.Settings;
 
 namespace SGBV.Infrastructure.Shared.Services;
 
-public class CloudinaryService(IOptions<CloudinarySettings> cloudinary) : ICloudinaryService
+public class CloudinaryService(IOptions<CloudinarySettings> cloudinaryOptions) : ICloudinaryService
 {
-    private CloudinarySettings Cloudinary { get; } = cloudinary.Value;
+    private CloudinarySettings Cloudinary { get; } = cloudinaryOptions.Value;
 
     public async Task<string> UploadImageCloudinaryAsync(
         Stream fileStream,
@@ -24,7 +24,7 @@ public class CloudinaryService(IOptions<CloudinarySettings> cloudinary) : ICloud
             Overwrite = true
         };
 
-        var uploadResult = await cloudinary.UploadAsync(image, cancellationToken);
+        ImageUploadResult uploadResult = await cloudinary.UploadAsync(image, cancellationToken);
         return uploadResult.SecureUrl.ToString();
     }
 }
