@@ -6,6 +6,7 @@ public record ResourceDto(
     string Author,
     string? Genre,
     short? PublicationYear,
+    string? CoverUrl,
     string? Description,
     string ResourceStatus,
     string Status

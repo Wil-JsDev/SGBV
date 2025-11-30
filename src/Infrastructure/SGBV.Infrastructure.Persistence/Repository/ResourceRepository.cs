@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SGBV.Application.DTOs;
 using SGBV.Application.Interfaces.Repositories;
 using SGBV.Application.Utilities;
 using SGBV.Domain.Common;
@@ -55,4 +56,42 @@ public class ResourceRepository(SgbvContext context)
 
         return new PagedResult<Resource>(items, total, pageNumber, pageSize);
     }
+    
+    public async Task<int> GetAvailableResourceCountAsync(CancellationToken cancellationToken)
+    {
+        return await context.Resources
+            .Where(x => x.Status == ResourcesStatus.Available)
+            .CountAsync(cancellationToken);
+    }
+    
+    public async Task<PagedResult<GenreCountDto>> GetGenresWithCountPagedAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var query = context.Resources
+            .AsNoTracking()
+            .Where(r => r.Genre != null)
+            .GroupBy(r => r.Genre!)
+            .Select(g => new
+            {
+                Genre = g.Key,
+                Resources = g.Count()
+            })
+            .AsEnumerable()
+            .Select(x => new GenreCountDto(x.Genre, x.Resources));
+
+        var total = query.Count();
+
+        var items = query
+            .OrderBy(g => g.Genre)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return new PagedResult<GenreCountDto>(items, total, pageNumber, pageSize);
+    }
+
+
+
 }
