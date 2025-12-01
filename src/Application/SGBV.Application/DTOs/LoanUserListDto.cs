@@ -3,7 +3,7 @@ namespace SGBV.Application.DTOs;
 public sealed record LoanUserListDto(
     Guid Id,
     string UserName,
-    ResourceLoanDto Resource,
+    ResourceDto Resource,
     DateTime LoanDate,
     DateTime DueDate,
     DateTime? ReturnDate,

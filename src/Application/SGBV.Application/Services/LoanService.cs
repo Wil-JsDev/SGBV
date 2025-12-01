@@ -116,7 +116,9 @@ public class LoanService(
         (
             Id: loan.Id,
             UserName: user.Name,
-            Resource: new ResourceLoanDto(loan.ResourceId, loan.Resource.Title, loan.Resource.CoverUrl),
+            Resource: new ResourceDto(loan.ResourceId, loan.Resource.Title, loan.Resource.Author, loan.Resource.Genre,
+                loan.Resource.PublicationYear, loan.Resource.CoverUrl, loan.Resource.Description,
+                loan.Resource.ResourceStatus, loan.Resource.Status),
             LoanDate: loan.LoanDate,
             DueDate: loan.DueDate,
             ReturnDate: loan.ReturnDate,
@@ -156,7 +158,7 @@ public class LoanService(
 
         return ResultT<LoanResponseDto>.Success(response);
     }
-    
+
     public async Task<ResultT<LoanResponseDto>> ExtendLoanAsync(
         LoanExtendDto dto,
         CancellationToken cancellationToken = default)
@@ -200,5 +202,4 @@ public class LoanService(
 
         return ResultT<LoanResponseDto>.Success(response);
     }
-
 }
