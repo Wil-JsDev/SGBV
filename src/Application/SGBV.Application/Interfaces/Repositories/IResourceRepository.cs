@@ -1,4 +1,5 @@
-﻿using SGBV.Application.Utilities;
+﻿using SGBV.Application.DTOs;
+using SGBV.Application.Utilities;
 using SGBV.Domain.Models;
 
 namespace SGBV.Application.Interfaces.Repositories;
@@ -23,4 +24,11 @@ public interface IResourceRepository : IGenericRepository<Resource>
         short? publicationYear,
         int pageNumber,
         int pageSize);
+
+    Task<int> GetAvailableResourceCountAsync(CancellationToken cancellationToken);
+
+    Task<PagedResult<GenreCountDto>> GetGenresWithCountPagedAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken);
 }

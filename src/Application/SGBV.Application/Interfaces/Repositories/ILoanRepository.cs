@@ -71,4 +71,13 @@ public interface ILoanRepository : IGenericRepository<Loan>
     /// <param name="userId">The ID of the user to check.</param>
     /// <returns>True if the user has one or more overdue loans; otherwise, false.</returns>
     Task<bool> HasOverdueLoansAsync(Guid userId);
+    
+    Task<int> GetUserLoanCountAsync(Guid userId, CancellationToken cancellationToken);
+    Task<int> GetUserBorrowedResourceCountAsync(Guid userId, CancellationToken cancellationToken);
+    
+    Task<int> GetActiveLoanCountAsync(CancellationToken cancellationToken);
+    Task<int> GetOverdueLoanCountAsync(CancellationToken cancellationToken);
+
+    Task<int> GetUserOverdueLoanCountAsync(Guid userId, CancellationToken cancellationToken);
+
 }

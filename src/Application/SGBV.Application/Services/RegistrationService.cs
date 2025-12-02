@@ -11,7 +11,8 @@ namespace SGBV.Application.Services;
 public class RegistrationService(
     ILogger<RegistrationService> logger,
     IUserRepository userRepository,
-    IUserRoleService roleService
+    IUserRoleService roleService,
+    ICloudinaryService cloudinaryService
 ) : IRegistrationService
 {
     public Task<ResultT<RegisterUserDto>> RegisterAsync(RegisterUserRequestDto request,
@@ -42,12 +43,22 @@ public class RegistrationService(
                 $"Something went wrong: the role does not exist."));
         }
 
+        string profilePhoto = "";
+        if (request.ProfilePhoto is not null)
+        {
+            await using var stream = request.ProfilePhoto.OpenReadStream();
+            profilePhoto =
+                await cloudinaryService.UploadImageCloudinaryAsync(stream, request.ProfilePhoto.FileName,
+                    cancellationToken);
+        }
+
         var user = new User
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
             Email = request.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            ProfileUrl = profilePhoto,
             RegistrationDate = DateTime.UtcNow,
             RolId = role.Id,
             Rol = role
@@ -70,6 +81,7 @@ public class RegistrationService(
             Name: userInfo.Name,
             Email: userInfo.Email,
             RegistrationDate: userInfo.RegistrationDate,
+            ProfileUrl: userInfo.ProfileUrl,
             RolId: userInfo.RolId
         );
 

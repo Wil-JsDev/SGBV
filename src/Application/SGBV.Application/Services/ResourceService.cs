@@ -12,7 +12,8 @@ namespace SGBV.Application.Services;
 public class ResourceService(
     ILogger<ResourceService> logger,
     IResourceRepository resourceRepository,
-    IGenericRepository<Resource> genericRepository
+    IGenericRepository<Resource> genericRepository,
+    ICloudinaryService cloudinaryService
 ) : IResourceService
 {
     public async Task<ResultT<ResourceDto>> GetResourceByIdAsync(Guid resourceId, CancellationToken cancellationToken)
@@ -30,6 +31,7 @@ public class ResourceService(
             resource.Author,
             resource.Genre,
             resource.PublicationYear,
+            resource.CoverUrl,
             resource.Description,
             resource.ResourceStatus,
             resource.Status
@@ -42,6 +44,14 @@ public class ResourceService(
     public async Task<ResultT<ResourceDto>> CreateResourceAsync(ResourceRequestDto resourceDto,
         CancellationToken cancellationToken)
     {
+        string cover = "";
+        if (resourceDto.CoverUrl is not null)
+        {
+            await using var stream = resourceDto.CoverUrl.OpenReadStream();
+            cover = await cloudinaryService.UploadImageCloudinaryAsync(stream, resourceDto.CoverUrl.FileName,
+                cancellationToken);
+        }
+
         var resource = new Resource
         {
             Id = Guid.NewGuid(),
@@ -49,8 +59,9 @@ public class ResourceService(
             Author = resourceDto.Author,
             Genre = resourceDto.Genre,
             PublicationYear = resourceDto.PublicationYear,
+            CoverUrl = cover,
             Description = resourceDto.Description,
-            Status = ResourcesStatus.Available 
+            Status = ResourcesStatus.Available
         };
 
         await genericRepository.CreateAsync(resource, cancellationToken);
@@ -63,6 +74,7 @@ public class ResourceService(
             resource.Author,
             resource.Genre,
             resource.PublicationYear,
+            resource.CoverUrl,
             resource.Description,
             resource.ResourceStatus,
             resource.Status
@@ -70,7 +82,7 @@ public class ResourceService(
 
         return ResultT<ResourceDto>.Success(dto);
     }
-    
+
     public async Task<ResultT<ResponseDto>> DeleteResourceAsync(Guid resourceId, CancellationToken cancellationToken)
     {
         var resource = await resourceRepository.GetByIdAsync(resourceId, cancellationToken);
@@ -97,12 +109,21 @@ public class ResourceService(
             logger.LogWarning("Attempted to update resource with Id {ResourceId}, but it was not found.", resourceId);
             return ResultT<ResourceDto>.Failure(Error.NotFound("404", "We couldn't find this resource."));
         }
+        
+        string cover = "";
+        if (updatedDto.CoverUrl is not null)
+        {
+            await using var stream = updatedDto.CoverUrl.OpenReadStream();
+            cover = await cloudinaryService.UploadImageCloudinaryAsync(stream, updatedDto.CoverUrl.FileName,
+                cancellationToken);
+        }
 
         resource.Title = updatedDto.Title;
         resource.Author = updatedDto.Author;
         resource.Genre = updatedDto.Genre;
         resource.PublicationYear = updatedDto.PublicationYear;
         resource.Description = updatedDto.Description;
+        resource.CoverUrl = cover;
 
         await genericRepository.UpdateAsync(resource, cancellationToken);
 
@@ -114,6 +135,7 @@ public class ResourceService(
             resource.Author,
             resource.Genre,
             resource.PublicationYear,
+            resource.CoverUrl,
             resource.Description,
             resource.ResourceStatus,
             resource.Status
@@ -121,7 +143,7 @@ public class ResourceService(
 
         return ResultT<ResourceDto>.Success(dto);
     }
-    
+
     public async Task<ResultT<PagedResult<ResourceDto>>> SearchResourcesAsync(
         string? title = null,
         string? author = null,
@@ -147,6 +169,7 @@ public class ResourceService(
             r.Author,
             r.Genre,
             r.PublicationYear,
+            r.CoverUrl,
             r.Description,
             r.ResourceStatus,
             r.Status
@@ -158,7 +181,8 @@ public class ResourceService(
                 resourcesPaged.TotalPages));
     }
 
-    public async Task<ResultT<ResponseDto>> UpdateResourceStatusAsync(Guid resourceId, UpdateResourceStatusDto newStatus,
+    public async Task<ResultT<ResponseDto>> UpdateResourceStatusAsync(Guid resourceId,
+        UpdateResourceStatusDto newStatus,
         CancellationToken cancellationToken)
     {
         var resource = await resourceRepository.GetByIdAsync(resourceId, cancellationToken);
@@ -176,4 +200,33 @@ public class ResourceService(
         return ResultT<ResponseDto>.Success(
             new ResponseDto($"The status has been updated successfully."));
     }
+
+    public async Task<ResultT<PagedResult<GenreCountDto>>> GetGenresWithCountPagedAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var result = await resourceRepository.GetGenresWithCountPagedAsync(
+            pageNumber,
+            pageSize,
+            cancellationToken);
+
+        if (!result.Items.Any())
+        {
+            logger.LogInformation("No genres found.");
+            return ResultT<PagedResult<GenreCountDto>>.Success(
+                new PagedResult<GenreCountDto>(
+                    Enumerable.Empty<GenreCountDto>(), 
+                    result.TotalItems,
+                    pageNumber,
+                    result.TotalPages
+                )
+            );
+        }
+
+        logger.LogInformation("Successfully retrieved genres with counts: {Count}", result.Items.Count());
+
+        return ResultT<PagedResult<GenreCountDto>>.Success(result);
+    }
+
 }

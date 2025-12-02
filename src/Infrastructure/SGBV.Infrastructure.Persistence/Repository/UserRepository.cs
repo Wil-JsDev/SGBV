@@ -44,4 +44,10 @@ public class UserRepository(SgbvContext context) : GenericRepository<User>(conte
                 LoginAt = u.LoginAt
             })
             .FirstOrDefaultAsync(cancellationToken);
+    
+    public async Task<int> GetTotalUserCountAsync(CancellationToken cancellationToken)
+    {
+        return await context.Users.CountAsync(cancellationToken);
+    }
+
 }

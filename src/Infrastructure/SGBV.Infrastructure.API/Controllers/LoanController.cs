@@ -30,4 +30,9 @@ public class LoanController(ILoanService service) : ControllerBase
     [HttpGet("{loanId:guid}")]
     public async Task<ResultT<LoanResponseDto>> GetById([FromRoute] Guid loanId) =>
         await service.GetByIdAsync(loanId);
+    
+    [HttpPut("extend")]
+    public async Task<ResultT<LoanResponseDto>> ExtendLoan([FromBody] LoanExtendDto dto) =>
+        await service.ExtendLoanAsync(dto);
+
 }

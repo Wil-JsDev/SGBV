@@ -25,4 +25,9 @@ public interface IResourceService
 
     Task<ResultT<ResourceDto>> UpdateResourceAsync(Guid resourceId, ResourceRequestDto updatedDto,
         CancellationToken cancellationToken);
+
+    Task<ResultT<PagedResult<GenreCountDto>>> GetGenresWithCountPagedAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken);
 }

@@ -5,5 +5,6 @@ public record RegisterUserDto(
     string Name,
     string Email,
     DateTime RegistrationDate,
+    string ProfileUrl,
     Guid RolId
 );
