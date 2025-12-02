@@ -80,4 +80,6 @@ public interface ILoanRepository : IGenericRepository<Loan>
 
     Task<int> GetUserOverdueLoanCountAsync(Guid userId, CancellationToken cancellationToken);
 
+    Task<PagedResult<Loan>> GetLoansPagedAsync(int pageNumber, int pageSize);
+
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using SGBV.Application.Interfaces.Repositories;
 using SGBV.Application.Utilities;
 using SGBV.Domain.Common;
@@ -35,6 +36,24 @@ public class LoanRepository(SgbvContext context)
             .AsNoTracking()
             .Include(l => l.Resource)
             .Where(l => l.UserId == userId);
+
+        var total = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(l => l.LoanDate)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<Loan>(items, total, pageNumber, pageSize);
+    }
+    
+    public async Task<PagedResult<Loan>> GetLoansPagedAsync(int pageNumber, int pageSize)
+    {
+        var query = context.Set<Loan>()
+            .AsNoTracking()
+            .Include(l => l.Resource)
+            .Include(c => c.User);
 
         var total = await query.CountAsync();
 
@@ -161,7 +180,7 @@ public class LoanRepository(SgbvContext context)
                 l.ReturnDate == null &&
                 l.DueDate < now);
     }
-    
+
     public async Task<int> GetUserLoanCountAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await context.Loans
@@ -175,7 +194,7 @@ public class LoanRepository(SgbvContext context)
             .Where(x => x.UserId == userId && x.ReturnDate == null)
             .CountAsync(cancellationToken);
     }
-    
+
     public async Task<int> GetActiveLoanCountAsync(CancellationToken cancellationToken)
     {
         return await context.Loans
@@ -191,7 +210,7 @@ public class LoanRepository(SgbvContext context)
                 x.DueDate < DateTime.UtcNow)
             .CountAsync(cancellationToken);
     }
-    
+
     public async Task<int> GetUserOverdueLoanCountAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await context.Loans

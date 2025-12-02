@@ -22,10 +22,15 @@ public class LoanController(ILoanService service) : ControllerBase
         await service.DeleteLoanAsync(id);
 
     [HttpGet("paged/{userId:guid}")]
-    public async Task<ResultT<PagedResult<LoanUserListDto>>> GetPagedLoanList([FromRoute] Guid userId,
+    public async Task<ResultT<PagedResult<LoanUserListDto>>> GetPagedLoanListByUserId([FromRoute] Guid userId,
         [FromQuery] int pageNumber,
         [FromQuery] int pageSize) =>
         await service.GetPagedLoanListAsync(userId, pageNumber, pageSize);
+    
+    [HttpGet("paged")]
+    public async Task<ResultT<PagedResult<LoanUserListDto>>> GetPagedLoanList([FromQuery] int pageNumber,
+        [FromQuery] int pageSize) =>
+        await service.GetPagedLoanListAsync(pageNumber, pageSize);
 
     [HttpGet("{loanId:guid}")]
     public async Task<ResultT<LoanResponseDto>> GetById([FromRoute] Guid loanId) =>

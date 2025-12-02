@@ -115,7 +115,46 @@ public class LoanService(
         var itemsDto = items.Items.Select(loan => new LoanUserListDto
         (
             Id: loan.Id,
+            UserId: user.Id,
             UserName: user.Name,
+            Resource: new ResourceDto(loan.ResourceId, loan.Resource.Title, loan.Resource.Author, loan.Resource.Genre,
+                loan.Resource.PublicationYear, loan.Resource.CoverUrl, loan.Resource.Description,
+                loan.Resource.ResourceStatus, loan.Resource.Status),
+            LoanDate: loan.LoanDate,
+            DueDate: loan.DueDate,
+            ReturnDate: loan.ReturnDate,
+            Status: loan.Status
+        ));
+
+        IEnumerable<LoanUserListDto> loanUserListDtos = itemsDto as LoanUserListDto[] ?? itemsDto.ToArray();
+
+        if (!loanUserListDtos.Any())
+        {
+            return ResultT<PagedResult<LoanUserListDto>>.Success(
+                new PagedResult<LoanUserListDto>([], items.TotalItems, pageNumber,
+                    pageSize));
+        }
+
+        return ResultT<PagedResult<LoanUserListDto>>.Success(
+            new PagedResult<LoanUserListDto>(loanUserListDtos, items.TotalItems, pageNumber, pageSize));
+    }
+    
+    public async Task<ResultT<PagedResult<LoanUserListDto>>> GetPagedLoanListAsync(int pageNumber,
+        int pageSize, CancellationToken cancellationToken = default)
+    {
+        if (pageNumber <= 0 || pageSize <= 0)
+        {
+            return ResultT<PagedResult<LoanUserListDto>>.Failure(Error.Failure("400",
+                "Page number and page size must be greater than zero."));
+        }
+
+        var items = await loanRepository.GetLoansPagedAsync(pageNumber, pageSize);
+
+        var itemsDto = items.Items.Select(loan => new LoanUserListDto
+        (
+            Id: loan.Id,
+            UserId: loan.UserId,
+            UserName: loan.User.Name,
             Resource: new ResourceDto(loan.ResourceId, loan.Resource.Title, loan.Resource.Author, loan.Resource.Genre,
                 loan.Resource.PublicationYear, loan.Resource.CoverUrl, loan.Resource.Description,
                 loan.Resource.ResourceStatus, loan.Resource.Status),
