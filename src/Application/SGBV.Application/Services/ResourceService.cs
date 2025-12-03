@@ -124,6 +124,11 @@ public class ResourceService(
         resource.PublicationYear = updatedDto.PublicationYear;
         resource.Description = updatedDto.Description;
         resource.CoverUrl = cover;
+        if (updatedDto.Status.HasValue)
+        {
+            resource.Status = updatedDto.Status.Value.ToString();
+        }
+
 
         await genericRepository.UpdateAsync(resource, cancellationToken);
 
@@ -179,26 +184,6 @@ public class ResourceService(
         return ResultT<PagedResult<ResourceDto>>.Success(
             new PagedResult<ResourceDto>(resourceDtos, resourcesPaged.TotalItems, pageNumber,
                 resourcesPaged.TotalPages));
-    }
-
-    public async Task<ResultT<ResponseDto>> UpdateResourceStatusAsync(Guid resourceId,
-        UpdateResourceStatusDto newStatus,
-        CancellationToken cancellationToken)
-    {
-        var resource = await resourceRepository.GetByIdAsync(resourceId, cancellationToken);
-        if (resource is null)
-        {
-            logger.LogWarning("Attempted to update status, but resource with Id {ResourceId} was not found.",
-                resourceId);
-            return ResultT<ResponseDto>.Failure(Error.NotFound("404", "We couldn't find this resource."));
-        }
-
-        await resourceRepository.UpdateResourceStatusAsync(resourceId, newStatus.ToString(), cancellationToken);
-
-        logger.LogInformation("Resource status updated successfully for Id {ResourceId} to '{Status}'.", resourceId,
-            newStatus);
-        return ResultT<ResponseDto>.Success(
-            new ResponseDto($"The status has been updated successfully."));
     }
 
     public async Task<ResultT<PagedResult<GenreCountDto>>> GetGenresWithCountPagedAsync(

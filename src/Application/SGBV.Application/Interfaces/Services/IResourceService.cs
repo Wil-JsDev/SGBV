@@ -14,10 +14,7 @@ public interface IResourceService
         short? publicationYear = null,
         int pageNumber = 1,
         int pageSize = 30);
-
-    Task<ResultT<ResponseDto>> UpdateResourceStatusAsync(Guid resourceId, UpdateResourceStatusDto newStatus,
-        CancellationToken cancellationToken);
-
+    
     Task<ResultT<ResourceDto>> CreateResourceAsync(ResourceRequestDto resourceDto,
         CancellationToken cancellationToken);
 

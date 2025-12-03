@@ -38,11 +38,6 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
         [FromQuery] int pageSize = 30
     ) =>
         await resourceService.SearchResourcesAsync(title, author, genre, publicationYear, pageNumber, pageSize);
-
-    [HttpPatch("{id}/status")]
-    public async Task<ResultT<ResponseDto>> UpdateStatus([FromRoute] Guid id, [FromBody] UpdateResourceStatusDto newStatus,
-        CancellationToken cancellationToken) =>
-        await resourceService.UpdateResourceStatusAsync(id, newStatus, cancellationToken);
     
     [HttpGet("genres/count")]
     public async Task<ResultT<PagedResult<GenreCountDto>>> GetGenresWithCountPaged(
