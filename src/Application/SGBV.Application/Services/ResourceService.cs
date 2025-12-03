@@ -111,7 +111,7 @@ public class ResourceService(
         }
         
         string cover = "";
-        if (updatedDto.CoverUrl is not null)
+        if (updatedDto.CoverUrl is not null && updatedDto.CoverUrl.Length > 0)
         {
             await using var stream = updatedDto.CoverUrl.OpenReadStream();
             cover = await cloudinaryService.UploadImageCloudinaryAsync(stream, updatedDto.CoverUrl.FileName,
