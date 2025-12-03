@@ -110,7 +110,7 @@ public class ResourceService(
             return ResultT<ResourceDto>.Failure(Error.NotFound("404", "We couldn't find this resource."));
         }
         
-        string cover = "";
+        string cover = resource?.CoverUrl;
         if (updatedDto.CoverUrl is not null && updatedDto.CoverUrl.Length > 0)
         {
             await using var stream = updatedDto.CoverUrl.OpenReadStream();
