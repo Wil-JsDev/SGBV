@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SGBV.Application.Interfaces.Repositories;
+using SGBV.Application.Utilities;
+using SGBV.Domain.Enum;
 using SGBV.Domain.Models;
 using SGBV.Infrastructure.Persistence.Context;
 
@@ -50,4 +52,22 @@ public class UserRepository(SgbvContext context) : GenericRepository<User>(conte
         return await context.Users.CountAsync(cancellationToken);
     }
 
+    public async Task<PagedResult<User>> GetAllUsers(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var query = context.Set<User>()
+            .AsNoTracking()
+            .Include(c => c.Rol)
+            .Where(c => c.Rol.NameRol == Roles.User.ToString());
+        
+        var total = await query.CountAsync();
+
+        var items = query
+            .OrderBy(c => c.RegistrationDate)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return new PagedResult<User>(items, total, pageNumber, pageSize);
+    }
+    
 }

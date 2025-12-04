@@ -1,4 +1,5 @@
-﻿using SGBV.Domain.Models;
+﻿using SGBV.Application.Utilities;
+using SGBV.Domain.Models;
 
 namespace SGBV.Application.Interfaces.Repositories;
 
@@ -58,4 +59,6 @@ public interface IUserRepository : IGenericRepository<User>
     /// <returns>The <see cref="User"/> object with loaded details, or null if not found.</returns>
     Task<User> GetUserDetailsAsync(Guid id, CancellationToken cancellationToken);
     Task<int> GetTotalUserCountAsync(CancellationToken cancellationToken);
+
+    Task<PagedResult<User>> GetAllUsers(int pageNumber, int pageSize, CancellationToken cancellationToken);
 }

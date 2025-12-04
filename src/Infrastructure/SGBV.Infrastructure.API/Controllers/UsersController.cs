@@ -43,4 +43,8 @@ public class UserController(IUserService userService, IRegistrationService regis
     public async Task<ResultT<AdminDashboardCountsDto>> GetAdminDashboard(
         CancellationToken cancellationToken) =>
         await userService.GetAdminDashboardCountsAsync(cancellationToken);
+    
+    [HttpGet("users")]
+    public async Task<ResultT<PagedResult<RegisterUserDto>>> GetAllUsers([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken) =>
+        await userService.GetAllAsync(pageNumber, pageSize, cancellationToken);
 }
