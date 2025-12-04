@@ -15,15 +15,15 @@ public class RegistrationService(
     ICloudinaryService cloudinaryService
 ) : IRegistrationService
 {
-    public Task<ResultT<RegisterUserDto>> RegisterAsync(RegisterUserRequestDto request,
+    public Task<ResultT<UserDto>> RegisterAsync(RegisterUserRequestDto request,
         CancellationToken cancellationToken) =>
         RegisterWithRoleAsync(request, nameof(Roles.User), cancellationToken);
 
-    public Task<ResultT<RegisterUserDto>> RegisterAdminAsync(RegisterUserRequestDto request,
+    public Task<ResultT<UserDto>> RegisterAdminAsync(RegisterUserRequestDto request,
         CancellationToken cancellationToken) =>
         RegisterWithRoleAsync(request, nameof(Roles.Admin), cancellationToken);
 
-    public async Task<ResultT<RegisterUserDto>> RegisterWithRoleAsync(
+    public async Task<ResultT<UserDto>> RegisterWithRoleAsync(
         RegisterUserRequestDto request,
         string roleName,
         CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ public class RegistrationService(
         if (await userRepository.EmailExistAsync(request.Email, cancellationToken))
         {
             logger.LogInformation("Email already exists: {Email}", request.Email);
-            return ResultT<RegisterUserDto>.Failure(Error.Conflict("409",
+            return ResultT<UserDto>.Failure(Error.Conflict("409",
                 "This email is already in use. Try logging in or use another email."));
         }
 
@@ -39,7 +39,7 @@ public class RegistrationService(
         if (role is null)
         {
             logger.LogWarning("Role '{RoleName}' not found when registering user: {Email}", roleName, request.Email);
-            return ResultT<RegisterUserDto>.Failure(Error.Failure("400",
+            return ResultT<UserDto>.Failure(Error.Failure("400",
                 $"Something went wrong: the role does not exist."));
         }
 
@@ -72,20 +72,19 @@ public class RegistrationService(
         if (userInfo is null)
         {
             logger.LogWarning("User {UserId} was created but could not be retrieved from the database.", user.Id);
-            return ResultT<RegisterUserDto>.Failure(Error.Failure("400",
+            return ResultT<UserDto>.Failure(Error.Failure("400",
                 "The user was created but could not be retrieved. Please try again."));
         }
 
-        var userDto = new RegisterUserDto(
+        var userDto = new UserDto(
             Id: userInfo.Id,
             Name: userInfo.Name,
             Email: userInfo.Email,
             RegistrationDate: userInfo.RegistrationDate,
-            ProfileUrl: userInfo.ProfileUrl ?? String.Empty,
-            RolId: userInfo.RolId
+            ProfileUrl: userInfo.ProfileUrl ?? String.Empty
         );
 
         logger.LogInformation("User registration completed successfully for {UserId}.", userInfo.Id);
-        return ResultT<RegisterUserDto>.Success(userDto);
+        return ResultT<UserDto>.Success(userDto);
     }
 }

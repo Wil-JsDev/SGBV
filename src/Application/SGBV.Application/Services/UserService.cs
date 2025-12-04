@@ -23,6 +23,7 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             user.Id,
             user.Name,
             user.Email,
+            user.ProfileUrl ?? String.Empty,
             user.RegistrationDate,
             user.LoginAt
         );
@@ -106,6 +107,7 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             user.Id,
             user.Name,
             user.Email,
+            user.ProfileUrl ?? string.Empty,
             user.RegistrationDate,
             user.LoginAt
         );
@@ -162,6 +164,7 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             c.Id,
             c.Name,
             c.Email,
+            c.ProfileUrl ?? String.Empty,
             c.RegistrationDate,
             c.LoginAt
         )).ToList();
