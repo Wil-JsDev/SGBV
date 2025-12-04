@@ -42,8 +42,7 @@ public class ResourceRepository(SgbvContext context)
                 (EF.Functions.Like(r.Title, $"%{title}%") || string.IsNullOrEmpty(title)) &&
                 (EF.Functions.Like(r.Author, $"%{author}%") || string.IsNullOrEmpty(author)) &&
                 (EF.Functions.Like(r.Genre!, $"%{genre}%") || string.IsNullOrEmpty(genre)) &&
-                (!publicationYear.HasValue || r.PublicationYear == publicationYear.Value) &&
-                r.Status == ResourcesStatus.Available
+                (!publicationYear.HasValue || r.PublicationYear == publicationYear.Value)
             );
 
         var total = await query.CountAsync();
