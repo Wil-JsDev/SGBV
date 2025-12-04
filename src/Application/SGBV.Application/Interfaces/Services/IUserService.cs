@@ -20,5 +20,5 @@ public interface IUserService
     Task<AdminDashboardCountsDto> GetAdminDashboardCountsAsync(
         CancellationToken cancellationToken);
 
-    Task<ResultT<PagedResult<RegisterUserDto>>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
+    Task<ResultT<PagedResult<UserDto>>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
 }

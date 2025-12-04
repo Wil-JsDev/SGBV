@@ -6,5 +6,5 @@ public record RegisterUserRequestDto(
     string Name,
     string Email,
     string Password,
-    IFormFile ProfilePhoto
+    IFormFile? ProfilePhoto
 );

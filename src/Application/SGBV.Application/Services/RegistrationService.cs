@@ -44,7 +44,7 @@ public class RegistrationService(
         }
 
         string profilePhoto = "";
-        if (request.ProfilePhoto is not null)
+        if (request.ProfilePhoto is not null && request.ProfilePhoto.Length > 0)
         {
             await using var stream = request.ProfilePhoto.OpenReadStream();
             profilePhoto =
@@ -81,7 +81,7 @@ public class RegistrationService(
             Name: userInfo.Name,
             Email: userInfo.Email,
             RegistrationDate: userInfo.RegistrationDate,
-            ProfileUrl: userInfo.ProfileUrl,
+            ProfileUrl: userInfo.ProfileUrl ?? String.Empty,
             RolId: userInfo.RolId
         );
 
