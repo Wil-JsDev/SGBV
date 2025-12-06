@@ -150,27 +150,28 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
         return new AdminDashboardCountsDto(activeLoans, overdueLoans, availableResources, totalUsers);
     }
 
-    public async Task<ResultT<PagedResult<UserDto>>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<ResultT<PagedResult<UserWithRoleDto>>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var result = await userRepository.GetAllUsers(pageNumber, pageSize, cancellationToken);
         if (!result.Items.Any())
         {
             logger.LogInformation("No users found.");
-            return ResultT<PagedResult<UserDto>>.Success(new PagedResult<UserDto>(
-                Enumerable.Empty<UserDto>(), result.TotalItems, pageNumber, result.TotalPages));
+            return ResultT<PagedResult<UserWithRoleDto>>.Success(new PagedResult<UserWithRoleDto>(
+                Enumerable.Empty<UserWithRoleDto>(), result.TotalItems, pageNumber, result.TotalPages));
         }
         
-        var users = result.Items.Select(c => new UserDto(
+        var users = result.Items.Select(c => new UserWithRoleDto(
             c.Id,
             c.Name,
             c.Email,
             c.ProfileUrl ?? String.Empty,
+            c.Rol.NameRol,
             c.RegistrationDate,
             c.LoginAt
-        )).ToList();
+            )).ToList();
         
         logger.LogInformation("Successfully retrieved {Count} users.", users.Count);
-        return ResultT<PagedResult<UserDto>>.Success(new PagedResult<UserDto>(users, result.TotalItems, pageNumber, result.TotalPages));
+        return ResultT<PagedResult<UserWithRoleDto>>.Success(new PagedResult<UserWithRoleDto>(users, result.TotalItems, pageNumber, result.TotalPages));
           
     }
 }
