@@ -31,4 +31,20 @@ public class UserController(IUserService userService, IRegistrationService regis
         [FromBody] UpdateNameDto updateName,
         CancellationToken cancellationToken) =>
         await userService.UpdateUserNameAsync(id, updateName.NewName, cancellationToken);
+
+    [HttpGet("{id}/dashboard")]
+    public async Task<ResultT<UserDashboardCountsDto>> GetUserDashboard(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken) =>
+        await userService.GetUserDashboardCountsAsync(id, cancellationToken);
+
+
+    [HttpGet("admin/dashboard")]
+    public async Task<ResultT<AdminDashboardCountsDto>> GetAdminDashboard(
+        CancellationToken cancellationToken) =>
+        await userService.GetAdminDashboardCountsAsync(cancellationToken);
+    
+    [HttpGet("users")]
+    public async Task<ResultT<PagedResult<UserWithRoleDto>>> GetAllUsers([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken) =>
+        await userService.GetAllAsync(pageNumber, pageSize, cancellationToken);
 }

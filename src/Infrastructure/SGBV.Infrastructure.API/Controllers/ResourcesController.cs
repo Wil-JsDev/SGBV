@@ -15,12 +15,12 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
         await resourceService.GetResourceByIdAsync(id, cancellationToken);
 
     [HttpPost]
-    public async Task<ResultT<ResourceDto>> Create([FromBody] ResourceRequestDto resourceDto,
+    public async Task<ResultT<ResourceDto>> Create([FromForm] ResourceRequestDto resourceDto,
         CancellationToken cancellationToken) =>
         await resourceService.CreateResourceAsync(resourceDto, cancellationToken);
 
     [HttpPut("{id}")]
-    public async Task<ResultT<ResourceDto>> Update([FromRoute] Guid id, [FromBody] ResourceRequestDto resourceDto,
+    public async Task<ResultT<ResourceDto>> Update([FromRoute] Guid id, [FromForm] ResourceRequestDto resourceDto,
         CancellationToken cancellationToken) =>
         await resourceService.UpdateResourceAsync(id, resourceDto, cancellationToken);
 
@@ -38,9 +38,18 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
         [FromQuery] int pageSize = 30
     ) =>
         await resourceService.SearchResourcesAsync(title, author, genre, publicationYear, pageNumber, pageSize);
+    
+    [HttpGet("genres/count")]
+    public async Task<ResultT<PagedResult<GenreCountDto>>> GetGenresWithCountPaged(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 30,
+        CancellationToken cancellationToken = default)
+    {
+        return await resourceService.GetGenresWithCountPagedAsync(
+            pageNumber,
+            pageSize,
+            cancellationToken
+        );
+    }
 
-    [HttpPatch("{id}/status")]
-    public async Task<ResultT<ResponseDto>> UpdateStatus([FromRoute] Guid id, [FromBody] UpdateResourceStatusDto newStatus,
-        CancellationToken cancellationToken) =>
-        await resourceService.UpdateResourceStatusAsync(id, newStatus, cancellationToken);
 }

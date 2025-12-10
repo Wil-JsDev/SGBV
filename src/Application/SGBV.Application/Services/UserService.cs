@@ -6,7 +6,8 @@ using SGBV.Application.Utilities;
 
 namespace SGBV.Application.Services;
 
-public class UserService(ILogger<UserService> logger, IUserRepository userRepository) : IUserService
+public class UserService(ILogger<UserService> logger, IUserRepository userRepository, ILoanRepository loanRepository, IResourceRepository resourceRepository)
+    : IUserService
 {
     public async Task<ResultT<UserDto>> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
@@ -22,6 +23,7 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             user.Id,
             user.Name,
             user.Email,
+            user.ProfileUrl ?? String.Empty,
             user.RegistrationDate,
             user.LoginAt
         );
@@ -105,6 +107,7 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             user.Id,
             user.Name,
             user.Email,
+            user.ProfileUrl ?? string.Empty,
             user.RegistrationDate,
             user.LoginAt
         );
@@ -113,5 +116,62 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             newName);
         return ResultT<UserDto>.Success(userDto);
     }
+
+    public async Task<UserDashboardCountsDto> GetUserDashboardCountsAsync(Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var totalLoans = await loanRepository
+            .GetUserLoanCountAsync(userId, cancellationToken);
+
+        var activeLoans = await loanRepository
+            .GetUserBorrowedResourceCountAsync(userId, cancellationToken);
+
+        var overdueLoans = await loanRepository
+            .GetUserOverdueLoanCountAsync(userId, cancellationToken);
+
+        return new UserDashboardCountsDto(totalLoans, activeLoans, overdueLoans);
+    }
     
+    public async Task<AdminDashboardCountsDto> GetAdminDashboardCountsAsync(
+        CancellationToken cancellationToken)
+    {
+        var activeLoans = await loanRepository
+            .GetActiveLoanCountAsync(cancellationToken);
+
+        var overdueLoans = await loanRepository
+            .GetOverdueLoanCountAsync(cancellationToken);
+
+        var availableResources = await resourceRepository
+            .GetAvailableResourceCountAsync(cancellationToken);
+
+        var totalUsers = 
+            await userRepository.GetTotalUserCountAsync(cancellationToken);
+
+        return new AdminDashboardCountsDto(activeLoans, overdueLoans, availableResources, totalUsers);
+    }
+
+    public async Task<ResultT<PagedResult<UserWithRoleDto>>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var result = await userRepository.GetAllUsers(pageNumber, pageSize, cancellationToken);
+        if (!result.Items.Any())
+        {
+            logger.LogInformation("No users found.");
+            return ResultT<PagedResult<UserWithRoleDto>>.Success(new PagedResult<UserWithRoleDto>(
+                Enumerable.Empty<UserWithRoleDto>(), result.TotalItems, pageNumber, result.TotalPages));
+        }
+        
+        var users = result.Items.Select(c => new UserWithRoleDto(
+            c.Id,
+            c.Name,
+            c.Email,
+            c.ProfileUrl ?? String.Empty,
+            c.Rol.NameRol,
+            c.RegistrationDate,
+            c.LoginAt
+            )).ToList();
+        
+        logger.LogInformation("Successfully retrieved {Count} users.", users.Count);
+        return ResultT<PagedResult<UserWithRoleDto>>.Success(new PagedResult<UserWithRoleDto>(users, result.TotalItems, pageNumber, result.TotalPages));
+          
+    }
 }

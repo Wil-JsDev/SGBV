@@ -13,4 +13,12 @@ public interface IUserService
 
     Task<ResultT<UserDto>> UpdateUserNameAsync(Guid userId, string newName,
         CancellationToken cancellationToken);
+
+    Task<UserDashboardCountsDto> GetUserDashboardCountsAsync(Guid userId,
+        CancellationToken cancellationToken);
+
+    Task<AdminDashboardCountsDto> GetAdminDashboardCountsAsync(
+        CancellationToken cancellationToken);
+
+    Task<ResultT<PagedResult<UserWithRoleDto>>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
 }

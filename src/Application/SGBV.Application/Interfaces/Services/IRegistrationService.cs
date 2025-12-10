@@ -6,12 +6,12 @@ namespace SGBV.Application.Interfaces.Services;
 
 public interface IRegistrationService
 {
-    Task<ResultT<RegisterUserDto>> RegisterAsync(RegisterUserRequestDto request, CancellationToken cancellationToken);
+    Task<ResultT<UserDto>> RegisterAsync(RegisterUserRequestDto request, CancellationToken cancellationToken);
 
-    Task<ResultT<RegisterUserDto>> RegisterAdminAsync(RegisterUserRequestDto request,
+    Task<ResultT<UserDto>> RegisterAdminAsync(RegisterUserRequestDto request,
         CancellationToken cancellationToken) => RegisterWithRoleAsync(request, nameof(Roles.Admin), cancellationToken);
 
-    Task<ResultT<RegisterUserDto>> RegisterWithRoleAsync(
+    Task<ResultT<UserDto>> RegisterWithRoleAsync(
         RegisterUserRequestDto request,
         string roleName,
         CancellationToken cancellationToken);

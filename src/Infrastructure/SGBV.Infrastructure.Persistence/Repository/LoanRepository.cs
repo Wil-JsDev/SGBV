@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using SGBV.Application.Interfaces.Repositories;
 using SGBV.Application.Utilities;
 using SGBV.Domain.Common;
@@ -33,7 +34,26 @@ public class LoanRepository(SgbvContext context)
     {
         var query = context.Set<Loan>()
             .AsNoTracking()
+            .Include(l => l.Resource)
             .Where(l => l.UserId == userId);
+
+        var total = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(l => l.LoanDate)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<Loan>(items, total, pageNumber, pageSize);
+    }
+    
+    public async Task<PagedResult<Loan>> GetLoansPagedAsync(int pageNumber, int pageSize)
+    {
+        var query = context.Set<Loan>()
+            .AsNoTracking()
+            .Include(l => l.Resource)
+            .Include(c => c.User);
 
         var total = await query.CountAsync();
 
@@ -159,5 +179,45 @@ public class LoanRepository(SgbvContext context)
                 l.UserId == userId &&
                 l.ReturnDate == null &&
                 l.DueDate < now);
+    }
+
+    public async Task<int> GetUserLoanCountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x => x.UserId == userId)
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> GetUserBorrowedResourceCountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x => x.UserId == userId && x.ReturnDate == null)
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> GetActiveLoanCountAsync(CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x => x.ReturnDate == null)
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> GetOverdueLoanCountAsync(CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x =>
+                x.ReturnDate == null &&
+                x.DueDate < DateTime.UtcNow)
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> GetUserOverdueLoanCountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.Loans
+            .Where(x =>
+                x.UserId == userId &&
+                x.ReturnDate == null &&
+                x.DueDate < DateTime.UtcNow)
+            .CountAsync(cancellationToken);
     }
 }

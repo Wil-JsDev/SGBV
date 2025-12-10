@@ -10,13 +10,13 @@ namespace SGBV.Infrastructure.API.Controllers;
 public class RegistrationController(IRegistrationService registrationService) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<ResultT<RegisterUserDto>> RegisterUser(
+    public async Task<ResultT<UserDto>> RegisterUser(
         [FromForm] RegisterUserRequestDto request,
         CancellationToken cancellationToken) =>
         await registrationService.RegisterAsync(request, cancellationToken);
 
     [HttpPost("register-admin")]
-    public async Task<ResultT<RegisterUserDto>> RegisterAdmin(
+    public async Task<ResultT<UserDto>> RegisterAdmin(
         [FromForm] RegisterUserRequestDto request,
         CancellationToken cancellationToken) =>
         await registrationService.RegisterAdminAsync(request, cancellationToken);
